@@ -60,10 +60,15 @@ export default function HomePage() {
   return (
     <>
       <style jsx global>{`
+        /* En @layer components para convivir con el CSS legacy (mismo
+           orden de capas que Tailwind); sin capa, este reset "*"
+           vencería a reglas por especificidad como .header-content. */
+        @layer components {
         * {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
+        }
         }
 
         html, body {
@@ -143,7 +148,10 @@ export default function HomePage() {
           align-items: center;
         }
 
-        .logo-main {
+        /* Solo el logo del hero: la regla global .logo-main chocaba con
+           .logo-item img (header) una vez que el CSS legacy pasó a vivir
+           en @layer components y estos estilos embebidos, sin capa, ganaban. */
+        .hero-logo .logo-main {
           border-radius: 50%;
           object-fit: cover;
           width: 100px;
@@ -151,7 +159,7 @@ export default function HomePage() {
         }
 
         @media (min-width: 768px) {
-          .logo-main {
+          .hero-logo .logo-main {
             width: 140px;
             height: 140px;
           }

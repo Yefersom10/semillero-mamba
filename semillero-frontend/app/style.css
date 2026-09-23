@@ -2,7 +2,28 @@
    GLOBAL CSS - SEMILLERO MAMBA CORHUILA
    Adaptado a estructura HTML existente
 ========================================================= */
-container-usuarios {
+
+/* Tailwind CSS v4 — requerido por @tailwindcss/postcss. Sin este import,
+   ninguna clase utilitaria (fixed, max-w-*, text-*, etc.) se compila. */
+@import "tailwindcss";
+
+/* Guardas de compatibilidad: el preflight de Tailwind resetea headings,
+   listas y enlaces. Se revierte para que los elementos sin clases
+   utilitarias conserven su aspecto histórico (UA por defecto). */
+@layer base {
+  h1, h2, h3, h4, h5, h6 { font-size: revert; font-weight: revert; }
+  ul, ol { list-style: revert; }
+  a { color: revert; }
+}
+
+/* El CSS legacy (siguiente hasta el final del archivo) vive en la capa
+   "components": las reglas sin capa vencen a TODAS las utilidades de
+   Tailwind (mx-auto, p-5, px-5, text-*...) y dejaban el layout sin
+   centrar ni con espaciado. Con @layer, las utilidades (capa
+   "utilities", la última) vuelven a poder sobrescribirlas. El orden
+   relativo de las reglas legacy entre sí no cambia. */
+@layer components {
+.container-usuarios {
   max-width: 1100px;
   margin: 0 auto;
   padding: 24px;
@@ -2100,3 +2121,4 @@ footer p {
         height: 80vh;
     }
 }
+} /* fin @layer components */

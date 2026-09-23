@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ComoComenzamosPage() {
   const [modalImageSrc, setModalImageSrc] = useState<string | null>(null);
@@ -57,7 +59,12 @@ export default function ComoComenzamosPage() {
 
         .logo-section { grid-area: logo; }
         .header-title { grid-area: title; text-align: center; }
-        .header-nav { grid-area: nav; display: flex; gap: 20px; justify-content: flex-end; flex-wrap: wrap; }
+        /* position: static evita que la regla global "nav { position: fixed; top: 100% }"
+           del CSS móvil convierta el menú en una barra flotante sobre el contenido */
+        .header-nav { grid-area: nav; display: flex; gap: 20px; justify-content: flex-end; flex-wrap: wrap; position: static; }
+
+        /* Capa del modal por encima del botón flotante de WhatsApp (z-index: 999 global) */
+        .blog-image-modal { z-index: 1000; }
 
         @media (max-width: 768px) {
           .header-content {
@@ -67,6 +74,11 @@ export default function ComoComenzamosPage() {
           .logo-section, .header-title, .header-nav {
             justify-content: center;
             text-align: center;
+          }
+          /* En móvil el header se apila y crece mucho: se deja en el flujo
+             normal (static) para que nunca tape el contenido al hacer scroll */
+          .header-bg {
+            position: static;
           }
         }
 
@@ -113,12 +125,13 @@ export default function ComoComenzamosPage() {
         .animate-slideIn { animation: slideIn 0.3s forwards; }
       `}</style>
 
-      {/* Header Fijo */}
-      <header className="header-bg text-white py-5 shadow-md fixed top-0 left-0 right-0 z-50">
+      {/* Header Sticky: ocupa espacio en el flujo, por lo que el contenido
+          siempre comienza debajo de él y la barra nunca lo tapa */}
+      <header className="header-bg text-white py-5 shadow-md sticky top-0 z-50">
         <div className="header-content">
           <div className="logo-section flex items-center gap-4">
             <div>
-              <img src="/Logo/Logo.png" alt="Logo Mamba" className="h-[60px] w-auto" />
+              <Image src="/Logo/Logo.png" alt="Logo Mamba" className="h-[60px] w-auto" width={60} height={60} priority />
             </div>
           </div>
           <div className="header-title">
@@ -126,23 +139,23 @@ export default function ComoComenzamosPage() {
             <p className="text-sm opacity-95">Investigación en Ingeniería de Sistemas</p>
           </div>
           <nav className="header-nav">
-            <a href="/" className="text-white font-medium hover:opacity-80 transition-opacity">Inicio</a>
-            <a href="/#lineas" className="text-white font-medium hover:opacity-80 transition-opacity">Líneas</a>
-            <a href="/#coordinadores" className="text-white font-medium hover:opacity-80 transition-opacity">Equipo</a>
-            <a href="/#eventos" className="text-white font-medium hover:opacity-80 transition-opacity">Eventos</a>
-            <a href="/#blog" className="text-white font-medium hover:opacity-80 transition-opacity">Blog</a>
+            <Link href="/" className="text-white font-medium hover:opacity-80 transition-opacity">Inicio</Link>
+            <Link href="/#lineas" className="text-white font-medium hover:opacity-80 transition-opacity">Líneas</Link>
+            <Link href="/#coordinadores" className="text-white font-medium hover:opacity-80 transition-opacity">Equipo</Link>
+            <Link href="/#eventos" className="text-white font-medium hover:opacity-80 transition-opacity">Eventos</Link>
+            <Link href="/#blog" className="text-white font-medium hover:opacity-80 transition-opacity">Blog</Link>
             <a href="https://chat.whatsapp.com/LC9bMjYmFqN4LUfGLDOMX0" target="_blank" rel="noopener noreferrer" className="text-white font-medium hover:opacity-80 transition-opacity">WhatsApp</a>
           </nav>
         </div>
       </header>
 
-      {/* Main Container con Padding Superior para compensar la altura del Header */}
-      <main className="pt-[140px] md:pt-[110px] flex-grow">
+      {/* Main Container: sin padding extra, el header sticky ya ocupa su espacio */}
+      <main className="flex-grow">
         {/* Breadcrumb */}
         <div className="max-w-6xl mx-auto px-5 w-full my-5 py-4 border-b border-gray-300">
-          <a href="/" className="text-[#2a9d7e] hover:opacity-80 hover:underline transition-all">
+          <Link href="/" className="text-[#2a9d7e] hover:opacity-80 hover:underline transition-all">
             ← Volver al sitio principal
-          </a>
+          </Link>
         </div>
 
         {/* Blog Header */}
@@ -168,7 +181,7 @@ export default function ComoComenzamosPage() {
 
             <p className="mb-4 leading-relaxed text-gray-700 text-justify">
               Cuando nuestros estudiantes ingresan al Semillero Mamba, muchos llegan con una pregunta común:
-              "¿Por qué la investigación?" Este blog post nace de esas conversaciones iniciales, de los primeros
+              &ldquo;¿Por qué la investigación?&rdquo; Este blog post nace de esas conversaciones iniciales, de los primeros
               pasos titubeantes, y de la transformación que ocurre cuando descubres que eres capaz de generar
               conocimiento nuevo.
             </p>
@@ -187,8 +200,8 @@ export default function ComoComenzamosPage() {
 
             <div className="highlight-box p-5 my-6 rounded-md">
               <p className="text-[#1a7c5e] font-semibold italic">
-                "El primer día pensé que no sería capaz, pero después de escuchar los problemas reales que
-                necesitaban soluciones, vi que la investigación era algo tangible y alcanzable."
+                &ldquo;El primer día pensé que no sería capaz, pero después de escuchar los problemas reales que
+                necesitaban soluciones, vi que la investigación era algo tangible y alcanzable.&rdquo;
               </p>
             </div>
 
@@ -203,10 +216,10 @@ export default function ComoComenzamosPage() {
 
             <div className="my-7 text-center">
               <img
-                src="/research-process-diagram.png"
+                src="/Imagenes/research-process-diagram.png"
                 alt="Proceso de Investigación Paso a Paso"
                 className="max-w-full h-auto rounded-lg shadow-md my-2 border-2 border-gray-100 cursor-zoom-in hover:opacity-95 transition-all"
-                onClick={() => openImageModal('/research-process-diagram.png')}
+                onClick={() => openImageModal('/Imagenes/research-process-diagram.png')}
               />
               <div className="text-center text-sm text-gray-500 italic mt-2 mb-7">
                 📊 Figura 1: Proceso de investigación del Semillero Mamba
@@ -275,10 +288,10 @@ export default function ComoComenzamosPage() {
 
             <div className="my-7 text-center">
               <img
-                src="/research-cycle.png"
+                src="/Imagenes/research-cycle.png"
                 alt="Ciclo de Investigación Científica"
                 className="max-w-full h-auto rounded-lg shadow-md my-2 border-2 border-gray-100 cursor-zoom-in hover:opacity-95 transition-all"
-                onClick={() => openImageModal('/research-cycle.png')}
+                onClick={() => openImageModal('/Imagenes/research-cycle.png')}
               />
               <div className="text-center text-sm text-gray-500 italic mt-2 mb-7">
                 🔄 Figura 2: Ciclo de investigación científica
@@ -303,8 +316,8 @@ export default function ComoComenzamosPage() {
             <div className="student-testimony p-5 my-6 rounded-lg">
               <p className="text-[#1a7c5e] font-semibold mb-2">👨‍🎓 Juan (Semestre 4)</p>
               <p className="text-gray-600">
-                "Cuando llegué, no sabía ni cómo leer un paper académico. Hoy estoy contribuyendo a un proyecto sobre
-                testing automatizado. La diferencia es la guía de mis coordinadores y el ambiente colaborativo."
+                &ldquo;Cuando llegué, no sabía ni cómo leer un paper académico. Hoy estoy contribuyendo a un proyecto sobre
+                testing automatizado. La diferencia es la guía de mis coordinadores y el ambiente colaborativo.&rdquo;
               </p>
               <p className="mt-5 text-gray-400 text-sm italic">Ingeniería de Sistemas</p>
             </div>
@@ -312,8 +325,8 @@ export default function ComoComenzamosPage() {
             <div className="student-testimony p-5 my-6 rounded-lg">
               <p className="text-[#1a7c5e] font-semibold mb-2">👩‍🎓 María (Semestre 6)</p>
               <p className="text-gray-600">
-                "Lo que más me gusta del semillero es que no solo aprendes teoría. Trabajas en problemas que importan,
-                usas tecnología moderna, y construyes tu portafolio profesional desde temprano."
+                &ldquo;Lo que más me gusta del semillero es que no solo aprendes teoría. Trabajas en problemas que importan,
+                usas tecnología moderna, y construyes tu portafolio profesional desde temprano.&rdquo;
               </p>
               <p className="mt-5 text-gray-400 text-sm italic">Ingeniería de Sistemas</p>
             </div>
@@ -393,12 +406,12 @@ export default function ComoComenzamosPage() {
               — Coordinadores del Semillero Mamba
             </p>
 
-            <a
+            <Link
               href="/#blog"
               className="back-button inline-block text-white px-7 py-3 rounded font-semibold mt-7 no-underline hover:-translate-y-0.5 hover:shadow-lg transition-all"
             >
               ← Volver al Blog
-            </a>
+            </Link>
           </article>
 
           {/* Related Posts */}
@@ -459,7 +472,7 @@ export default function ComoComenzamosPage() {
       {/* Modal para imágenes ampliadas */}
       {modalImageSrc && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 animate-fadeIn"
+          className="blog-image-modal fixed inset-0 z-50 bg-black/70 animate-fadeIn"
           onClick={closeImageModal}
         >
           <span
