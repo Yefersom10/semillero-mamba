@@ -1,0 +1,94 @@
+/* ========================================
+   AUTH - BACKGROUND STYLES
+   Estilos específicos para login y register
+   ======================================== */
+
+.auth-wrapper {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    
+    /* Imagen de fondo */
+    background-image: url('/imagenes/Imagen-fondo.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    
+    /* Overlay para mejorar legibilidad */
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Overlay oscuro/semi-transparente para mejor contraste */
+.auth-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 0;
+}
+
+/* Asegurar que el contenedor esté encima del overlay */
+.auth-wrapper > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ========================================
+   RESPONSIVE - MOBILE
+   ======================================== */
+
+@media (max-width: 768px) {
+    .auth-wrapper {
+        background-attachment: scroll;
+        padding: 20px 15px;
+    }
+    
+    .auth-wrapper::before {
+        background: rgba(0, 0, 0, 0.4);
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-wrapper {
+        padding: 15px 10px;
+    }
+    
+    .auth-wrapper::before {
+        background: rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* ========================================
+   VARIANTES DE FONDO (OPCIONAL)
+   Descomenta la que necesites
+   ======================================== */
+
+/* Para un fondo con gradiente superpuesto */
+/*
+.auth-wrapper {
+    background: linear-gradient(
+        135deg,
+        rgba(248, 249, 250, 0.95) 0%,
+        rgba(238, 245, 242, 0.95) 100%
+    ), 
+    url('../images/fondo-auth.jpg');
+    background-size: auto, cover;
+    background-position: center, center;
+    background-attachment: fixed, fixed;
+}
+*/
+
+/* Para un fondo oscuro con imagen */
+/*
+.auth-wrapper::before {
+    background: rgba(26, 124, 94, 0.25);
+}
+*/

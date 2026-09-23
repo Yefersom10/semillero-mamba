@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: mamba_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mamba}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mamba1234}
+      POSTGRES_DB: ${POSTGRES_DB:-semillero_mamba}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mamba} -d ${POSTGRES_DB:-semillero_mamba}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api: 
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mamba_api
+    restart: unless-stopped
+    environment:
+      # main.ts lee APP_PORT (no PORT): la app debe escuchar en 8000
+      # para que el mapeo de puertos 8000:8000 del host funcione
+      APP_PORT: 8000
+      SECRET_KEY: ${SECRET_KEY:-123456789}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-mamba}:${POSTGRES_PASSWORD:-mamba1234}@db:5432/${POSTGRES_DB:-semillero_mamba}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: ${POSTGRES_USER:-mamba}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-mamba1234}
+      DB_DATABASE: ${POSTGRES_DB:-semillero_mamba}
+      JWT_SECRET: ${JWT_SECRET:-123456789}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

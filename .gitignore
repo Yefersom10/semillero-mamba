@@ -1,0 +1,27 @@
+# Dependencias
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Builds
+dist/
+.next/
+build/
+out/
+
+# Variables de entorno (secretos) — nunca subir
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+*.tsbuildinfo
