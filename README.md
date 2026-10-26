@@ -123,6 +123,7 @@ semillero-mamba/
 
 ## Seguridad
 
+- La rama `main` está protegida: los cambios entran por pull request y con el CI (`backend`, `frontend`, `docker`) en verde.
 - Los archivos `.env` y `.env.local` con credenciales **no están incluidos** en este repositorio; solo se comparten los `.env.example` como plantilla.
 - Cada subcarpeta conserva su propio `.gitignore`
 
