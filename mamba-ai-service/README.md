@@ -22,7 +22,7 @@ El servicio funciona como intermediario entre el frontend (Next.js) y la API de 
                ▼
 ┌──────────────────────────────┐
 │  FastAPI (main.py)           │
-│  localhost:8000              │
+│  localhost:8001              │
 │  - Validación de payload     │
 │  - CORS                      │
 └──────────────┬───────────────┘
@@ -95,13 +95,13 @@ DB_PORT=5432
 python main.py
 ```
 
-El servicio inicia uvicorn en `http://localhost:8000` con recarga automática. También se puede iniciar directamente con:
+El servicio inicia uvicorn en `http://localhost:8001` con recarga automática. También se puede iniciar directamente con:
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-Documentación interactiva (Swagger): `http://localhost:8000/docs`
+Documentación interactiva (Swagger): `http://localhost:8001/docs`
 
 ## Endpoints
 
@@ -121,7 +121,7 @@ Recibe un mensaje del usuario y devuelve la respuesta del asistente.
 **Ejemplo de petición (curl):**
 
 ```bash
-curl -X POST http://localhost:8000/api/chat \
+curl -X POST http://localhost:8001/api/chat \
   -H "Content-Type: application/json" \
   -d '{
     "message": "¿Qué proyectos tiene el semillero?",
@@ -181,7 +181,17 @@ Si la pregunta trata de otro tema (noticias, matemáticas, recetas, política, p
 | Frontend en producción      | `3000`       |
 | MAMBA AI Service            | `8001`       |
 
-El middleware CORS de FastAPI permite el origen de `http://localhost:3000` y `http://localhost:3001`, con todos los métodos y encabezados habilitados.
+El middleware CORS de FastAPI permite por defecto los orígenes `http://localhost:3000` y `http://localhost:3001`; se pueden cambiar con la variable `CORS_ORIGINS` (separados por coma). Todos los métodos y encabezados están habilitados.
+
+## Docker
+
+Desde la raíz del repositorio (necesita `ANTHROPIC_API_KEY` en `.env`):
+
+```bash
+docker compose --profile chatbot up --build
+```
+
+El servicio queda en `http://localhost:8001` y usa la base de datos del contenedor `db`.
 
 ## Estructura del proyecto
 

@@ -44,5 +44,26 @@ services:
       db:
         condition: service_healthy
 
+  # Chatbot (opcional): docker compose --profile chatbot up --build
+  chatbot:
+    profiles: ["chatbot"]
+    build:
+      context: ./mamba-ai-service
+    container_name: mamba_chatbot
+    restart: unless-stopped
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?Define ANTHROPIC_API_KEY en .env}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-semillero_mamba}
+      DB_USER: ${POSTGRES_USER:-mamba}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en .env}
+      CORS_ORIGINS: ${FRONTEND_URL:-http://localhost:3001}
+    ports:
+      - "8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   postgres_data:

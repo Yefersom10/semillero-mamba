@@ -3,6 +3,8 @@
 # Expone el endpoint /api/chat que conecta el frontend con Claude
 # =============================================================
 
+import os
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -15,12 +17,18 @@ app = FastAPI(title="MAMBA AI Service")
 
 # -------------------------------------------------------------
 # Middleware CORS: permite que el frontend (Next.js) llame a esta API.
-# Puerto 3001 = frontend en desarrollo (next dev -p 3001)
-# Puerto 3000 = frontend en producción / otra instancia
+# Orígenes configurables con CORS_ORIGINS (separados por coma).
+# Por defecto: frontend en desarrollo/Docker (:3001) y alternativo (:3000).
 # -------------------------------------------------------------
+allowed_origins = [
+    o.strip().rstrip("/")
+    for o in os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001").split(",")
+    if o.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
