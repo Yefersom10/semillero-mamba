@@ -31,7 +31,8 @@ semillero-frontend (Next.js)  ──▶  Backend NestJS (NEXT_PUBLIC_API_URL →
 | `services/` | Clientes API (`api.ts`, `authService.ts`, `adminService.ts`, `chatService.ts`, ...) |
 | `components/` | Componentes reutilizables (incluye `Chatbot.tsx`) |
 | `types/` | Tipos compartidos de TypeScript |
-| `lib/`, `utils/` | Utilidades y helpers |
+| `lib/` | `config.ts` (URLs de la API y del chat, única fuente) y `errors.ts` (tipo `ApiError`) |
+| `utils/` | Utilidades y helpers |
 | `public/` | Assets estáticos |
 
 ## ⚙️ Requisitos previos
@@ -88,7 +89,8 @@ python main.py               # http://localhost:8001
 | `npm run dev` | Servidor de desarrollo (puerto 3001) |
 | `npm run build` | Build de producción |
 | `npm run start` | Servir el build de producción |
-| `npm run lint` | Lint con ESLint |
+| `npm run lint` | Lint con ESLint (el CI exige 0 errores) |
+| `npx tsc --noEmit` | Chequeo de tipos |
 
 ## 🔐 Roles
 

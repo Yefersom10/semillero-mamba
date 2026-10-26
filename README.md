@@ -82,8 +82,9 @@ Notas:
 cd back_nest
 npm install
 cp .env.example .env   # configurar variables (SECRET_KEY obligatoria)
-npm run start:dev
-npm test               # pruebas unitarias      # http://localhost:8000
+npm run start:dev      # http://localhost:8000
+npm test               # pruebas unitarias
+npm run lint           # eslint (el CI lo exige sin errores)
 ```
 
 #### 2. Servicio de IA (`mamba-ai-service`)

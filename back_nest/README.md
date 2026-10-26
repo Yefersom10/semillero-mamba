@@ -1,98 +1,88 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Backend — Semillero MAMBA (NestJS)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST del semillero: autenticación con JWT, usuarios, roles y permisos, grupos Minciencias, tipos de producto, proyectos y productos científicos. Usa **NestJS 11**, **TypeORM** y **PostgreSQL**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Puesta en marcha
 
-## Description
+### Con Docker (recomendado)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+Desde la **raíz del repositorio** (levanta backend, frontend y PostgreSQL):
 
 ```bash
-$ npm install
+cp .env.example .env     # completar SECRET_KEY y POSTGRES_PASSWORD
+docker compose up --build
 ```
 
-## Compile and run the project
+Ver el [README principal](../README.md) para URLs y opciones.
+
+### Local
+
+Requiere Node.js 20+ y un PostgreSQL accesible.
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cd back_nest
+npm install
+cp .env.example .env     # completar SECRET_KEY y DATABASE_URL
+npm run start:dev        # http://localhost:8000
 ```
 
-## Run tests
+Documentación interactiva (Swagger): `http://localhost:8000/api/docs`
+
+## Variables de entorno
+
+| Variable | Obligatoria | Descripción |
+|---|---|---|
+| `SECRET_KEY` | Sí | Clave para firmar los JWT. Mínimo 16 caracteres; el backend **no arranca** si falta o es un valor débil. |
+| `DATABASE_URL` | Sí | Cadena de conexión, p. ej. `postgresql://usuario:clave@localhost:5432/semillero_mamba`. |
+| `APP_PORT` | No | Puerto de la API (por defecto `3000`; en Docker y en `.env.example` es `8000`). |
+| `FRONTEND_URL` | No | Orígenes permitidos por CORS, separados por coma. Por defecto `http://localhost:3001,http://127.0.0.1:3001`. |
+| `DEBUG` | No | `true` activa `synchronize` de TypeORM (crea/actualiza tablas automáticamente). |
+| `SEED_ENABLED` | No | `false` desactiva la creación de tablas y de los datos de demostración al arrancar. Usar en producción. |
+
+Para generar una clave segura:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-## Deployment
+## Datos de demostración (seed)
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Al arrancar, si la base de datos está vacía, se crean roles (Administrador, Profesor, Estudiante, Usuario), permisos, grupos, tipos de producto, un proyecto y un producto de ejemplo, y cuatro usuarios de prueba (`julian@mamba.com`, `jose@mamba.com`, `maria@mamba.com`, `carlos@mamba.com`) con la contraseña `123456`. Si ya existen roles, no hace nada.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+> ⚠️ En producción define `SEED_ENABLED=false`: los usuarios de demostración tienen una contraseña conocida.
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+## Autenticación y permisos
+
+- `POST /auth/login` devuelve un `access_token` (JWT, válido 8 h) que se envía como `Authorization: Bearer <token>`.
+- `POST /auth/registro` crea usuarios con el rol por defecto (ID 4, «Usuario»).
+- Los endpoints protegidos usan `JwtAuthGuard` y `PermissionsGuard`; los permisos se declaran con `@RequirePermission('modulo:accion')` (p. ej. `proyectos:actualizar`). El rol Administrador tiene acceso total.
+
+## Estructura
+
+```
+src/
+├── auth/         # login, registro, estrategia JWT
+├── usuarios/     # usuarios
+├── roles/        # roles y permisos
+├── catalogos/    # grupos Minciencias y tipos de producto
+├── proyectos/    # proyectos
+├── productos/    # productos científicos
+├── relaciones/   # proyecto-usuario y producto-autor
+├── common/       # guards, decoradores, servicio base y validación de SECRET_KEY
+└── database/     # seed
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Scripts
 
-## Resources
+| Comando | Descripción |
+|---|---|
+| `npm run start:dev` | Desarrollo con recarga |
+| `npm run build` | Compila a `dist/` |
+| `npm run start:prod` | Ejecuta el build |
+| `npm test` | Pruebas unitarias (Jest) |
+| `npm run test:e2e` | Pruebas e2e |
+| `npm run lint` | ESLint (con `--fix`); el CI exige 0 errores |
 
-Check out a few resources that may come in handy when working with NestJS:
+## Pruebas
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Las pruebas unitarias cubren login y registro (`auth.service.spec.ts`), la validación de `SECRET_KEY`, las reglas de pertenencia de proyectos y el controlador de relaciones.
