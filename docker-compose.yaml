@@ -17,17 +17,18 @@ services:
       timeout: 5s
       retries: 5
 
-  api: 
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: mamba_api
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        NEXT_PUBLIC_CHAT_URL: ${NEXT_PUBLIC_CHAT_URL:-http://localhost:8001}
+    container_name: mamba_app
     restart: unless-stopped
     environment:
-      # main.ts lee APP_PORT (no PORT): la app debe escuchar en 8000
-      # para que el mapeo de puertos 8000:8000 del host funcione
       APP_PORT: 8000
-      SECRET_KEY: ${SECRET_KEY:-123456789}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3001}
       DATABASE_URL: postgresql://${POSTGRES_USER:-mamba}:${POSTGRES_PASSWORD:-mamba1234}@db:5432/${POSTGRES_DB:-semillero_mamba}
       DB_HOST: db
       DB_PORT: 5432
@@ -35,8 +36,10 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD:-mamba1234}
       DB_DATABASE: ${POSTGRES_DB:-semillero_mamba}
       JWT_SECRET: ${JWT_SECRET:-123456789}
+      SECRET_KEY: ${SECRET_KEY:-123456789}
     ports:
       - "8000:8000"
+      - "3001:3001"
     depends_on:
       db:
         condition: service_healthy

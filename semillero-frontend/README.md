@@ -37,14 +37,15 @@ semillero-frontend (Next.js)  ──▶  Backend NestJS (NEXT_PUBLIC_API_URL →
 ## ⚙️ Requisitos previos
 
 - [Node.js](https://nodejs.org/) 20 o superior
-- [Docker](https://www.docker.com/) con el backend NestJS en contenedores (`back_nest`, puente `8000`) — o el backend corriendo local con `npm run start:dev`
+- [Docker](https://www.docker.com/) para levantar backend + base de datos (o todo el stack, ver README de la raíz) — o el backend corriendo local con `npm run start:dev`
 - *Opcional:* microservicio [`mamba-ai-service`](../mamba-ai-service) para el chatbot (`http://localhost:8001`)
 
 ## 🚀 Puesta en marcha
 
 ```bash
 # 1. Backend (Docker): base de datos + API en el puerto 8000
-cd ../back_nest && docker compose up -d --build db api
+#    (desde la raíz del repo; también levanta este frontend en :3001)
+cd .. && docker compose up -d --build
 
 # 2. Microservicio del chatbot (opcional, puerto 8001)
 cd ../mamba-ai-service
