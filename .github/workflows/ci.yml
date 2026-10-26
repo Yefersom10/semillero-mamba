@@ -19,9 +19,7 @@ jobs:
           cache: npm
           cache-dependency-path: back_nest/package-lock.json
       - run: npm ci
-      # El lint aún tiene errores heredados: se informa pero no bloquea.
       - run: npx eslint "{src,test}/**/*.ts"
-        continue-on-error: true
       - run: npm run build
       - run: npm test
 
@@ -38,9 +36,7 @@ jobs:
           cache: npm
           cache-dependency-path: semillero-frontend/package-lock.json
       - run: npm ci
-      # El lint aún tiene errores heredados: se informa pero no bloquea.
       - run: npm run lint
-        continue-on-error: true
       - run: npx tsc --noEmit
       - run: npm run build
 
