@@ -41,7 +41,7 @@ export default function AdminLayout({
       (typeof resolvedUser.rol === 'number' ? resolvedUser.rol : null) ??
       resolvedUser.rol_id ??
       (typeof resolvedUser.rol === 'object' ? resolvedUser.rol?.id : null) ??
-      resolvedUser.id_rol
+      (resolvedUser as { id_rol?: number }).id_rol
     );
 
     // 4. Extraer nombre del rol si viene como string u objeto

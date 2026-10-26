@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -22,6 +23,39 @@ export default function ProyectosListPage() {
   const [esAdmin, setEsAdmin] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
 
+  const obtenerProyectosLocales = () => {
+    const mockStr = localStorage.getItem('mock_proyectos');
+    if (mockStr) {
+      try {
+        const mockData = JSON.parse(mockStr);
+        setProyectos(mockData);
+      } catch {
+        setProyectos([]);
+      }
+    } else {
+      setProyectos([]);
+    }
+  };
+
+  const cargarProyectos = async () => {
+    setLoading(true);
+    setErrorMsg('');
+
+    try {
+      const data = await proyectosService.getAll();
+
+      if (Array.isArray(data) && data.length > 0) {
+        setProyectos(data);
+      } else {
+        obtenerProyectosLocales();
+      }
+    } catch {
+      obtenerProyectosLocales();
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (!storedUser) {
@@ -42,39 +76,6 @@ export default function ProyectosListPage() {
 
     cargarProyectos();
   }, [router]);
-
-  const cargarProyectos = async () => {
-    setLoading(true);
-    setErrorMsg('');
-
-    try {
-      const data = await proyectosService.getAll();
-
-      if (Array.isArray(data) && data.length > 0) {
-        setProyectos(data);
-      } else {
-        obtenerProyectosLocales();
-      }
-    } catch (err: any) {
-      obtenerProyectosLocales();
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const obtenerProyectosLocales = () => {
-    const mockStr = localStorage.getItem('mock_proyectos');
-    if (mockStr) {
-      try {
-        const mockData = JSON.parse(mockStr);
-        setProyectos(mockData);
-      } catch (e) {
-        setProyectos([]);
-      }
-    } else {
-      setProyectos([]);
-    }
-  };
 
   const alternarDestacado = (proyectoId: number) => {
     let actualDestacados: string[] = JSON.parse(
@@ -102,7 +103,8 @@ export default function ProyectosListPage() {
     try {
       await proyectosService.delete(id);
       actualizarListasTrasEliminar(id);
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       // Sin fallback local: si el backend rechaza (p. ej. no estás asociado), se muestra el motivo
       const mensaje =
         err?.response?.data?.message || 'No se pudo eliminar el proyecto. Intenta de nuevo.';

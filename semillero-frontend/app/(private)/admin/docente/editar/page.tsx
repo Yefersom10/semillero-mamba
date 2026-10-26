@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -43,7 +44,8 @@ function FormularioEditarDocente() {
       await docentesService.update(Number(id), { nombre, email });
       alert('Docente actualizado exitosamente');
       router.push('/docentes');
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       alert(err.message || 'Error al actualizar el docente');
     } finally {
       setSubmitting(false);

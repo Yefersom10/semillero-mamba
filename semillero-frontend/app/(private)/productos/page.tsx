@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Producto, TipoProducto } from '@/types/api';
@@ -25,10 +26,6 @@ export default function ProductosPage() {
   const [filtroEstado, setFiltroEstado] = useState('');
   const [filtroTipo, setFiltroTipo] = useState('');
 
-  useEffect(() => {
-    cargarDatos();
-  }, []);
-
   const cargarDatos = async () => {
     setLoading(true);
     setError(null);
@@ -39,7 +36,8 @@ export default function ProductosPage() {
       ]);
       setProductos(dataProds);
       setTipos(dataTipos);
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       console.error(err.message);
       setError('No se pudieron cargar los productos. Intenta recargar la página.');
     } finally {
@@ -47,13 +45,18 @@ export default function ProductosPage() {
     }
   };
 
+  useEffect(() => {
+    cargarDatos();
+  }, []);
+
   const handleEliminar = async (id: number) => {
     if (!confirm('¿Seguro que deseas eliminar este producto?')) return;
     setEliminandoId(id);
     try {
       await productosService.delete(id);
       setProductos((prev) => prev.filter((p) => p.id !== id));
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       alert(err.message);
     } finally {
       setEliminandoId(null);

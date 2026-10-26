@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -22,39 +23,6 @@ export default function DetalleProyectoPage({ params }: { params: Promise<{ id: 
   // Permisos de gestión: admin siempre; docente/estudiante solo si están asociados
   const canManage = puedeGestionarProyecto(usuario, proyecto);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUsuario(JSON.parse(storedUser));
-      } catch (e) {
-        console.error('Error parseando usuario:', e);
-      }
-    }
-
-    if (proyectoId) {
-      cargarProyecto();
-    }
-  }, [proyectoId]);
-
-  const cargarProyecto = async () => {
-    setLoading(true);
-
-    try {
-      const data = await proyectosService.getById(proyectoId);
-      if (data) {
-        setProyecto(data);
-      } else {
-        cargarProyectoLocal();
-      }
-    } catch (err: any) {
-      // Intentar cargar desde el mock local si falla el backend
-      cargarProyectoLocal();
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const cargarProyectoLocal = () => {
     const mockStr = localStorage.getItem('mock_proyectos');
     if (mockStr) {
@@ -71,6 +39,39 @@ export default function DetalleProyectoPage({ params }: { params: Promise<{ id: 
     }
     setMsg({ text: 'No se encontró información del proyecto especificado.', type: 'error' });
   };
+
+  const cargarProyecto = async () => {
+    setLoading(true);
+
+    try {
+      const data = await proyectosService.getById(proyectoId);
+      if (data) {
+        setProyecto(data);
+      } else {
+        cargarProyectoLocal();
+      }
+    } catch {
+      // Intentar cargar desde el mock local si falla el backend
+      cargarProyectoLocal();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        setUsuario(JSON.parse(storedUser));
+      } catch (e) {
+        console.error('Error parseando usuario:', e);
+      }
+    }
+
+    if (proyectoId) {
+      cargarProyecto();
+    }
+  }, [proyectoId]);
 
   const handleEliminar = async () => {
     const confirmar = window.confirm(
@@ -89,7 +90,8 @@ export default function DetalleProyectoPage({ params }: { params: Promise<{ id: 
       setTimeout(() => {
         router.push('/proyectos');
       }, 1200);
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       // Sin fallback local: si el backend rechaza la operación, se informa el motivo
       const mensaje = err?.response?.data?.message || 'No se pudo eliminar el proyecto.';
       setMsg({

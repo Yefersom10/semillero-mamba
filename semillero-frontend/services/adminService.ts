@@ -1,3 +1,4 @@
+import type { ApiError } from '@/lib/errors';
 import { api } from './api';
 import {
   User,
@@ -87,7 +88,8 @@ export const adminService = {
     );
 
     return response.data;
-  } catch (error: any) {
+  } catch (errorRaw) {
+    const error = errorRaw as ApiError;
     console.error('❌ Error creando tipo:', error);
     console.error('📦 Payload enviado:', payload);
     console.error('📡 Status:', error.response?.status);

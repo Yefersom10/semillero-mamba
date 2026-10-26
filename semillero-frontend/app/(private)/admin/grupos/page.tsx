@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { adminService } from '@/services/adminService';
@@ -25,7 +26,8 @@ export default function GruposPage() {
       setLoading(true);
       const data = await adminService.getGrupos();
       setGrupos(data);
-    } catch (error: any) {
+    } catch (errorRaw) {
+      const error = errorRaw as ApiError;
       console.error('Error al cargar grupos:', error);
       toast.error('Error al cargar la lista de grupos');
     } finally {
@@ -88,7 +90,8 @@ export default function GruposPage() {
       }
       handleCloseModal();
       await fetchGrupos();
-    } catch (error: any) {
+    } catch (errorRaw) {
+      const error = errorRaw as ApiError;
       console.error('Error al guardar el grupo:', error?.response?.data || error);
       const msg = error?.response?.data?.message || 'Error al guardar el grupo';
       toast.error(Array.isArray(msg) ? msg.join(', ') : msg);
@@ -104,7 +107,8 @@ export default function GruposPage() {
       await adminService.deleteGrupo(id);
       toast.success('Grupo eliminado correctamente');
       await fetchGrupos();
-    } catch (error: any) {
+    } catch (errorRaw) {
+      const error = errorRaw as ApiError;
       console.error('Error al eliminar grupo:', error);
       toast.error('Error al eliminar el grupo');
     }

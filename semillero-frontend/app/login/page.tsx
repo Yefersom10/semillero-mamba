@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,6 +9,7 @@ import { useRouter } from 'next/navigation';
 // 1. Importar el servicio de autenticación desde el cliente centralizado de Axios
 import { authService } from '@/services/backend.service';
 import { useAuth } from '@/AuthContext/useAuth';
+import type { User } from '@/types/api';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -63,9 +65,9 @@ export default function LoginPage() {
 
     // Guarda el usuario en localStorage Y sincroniza el AuthContext,
     // para que los guards (ej: /admin) lo vean sin necesidad de recargar
-    const persistUser = (u: any) => {
+    const persistUser = (u: object) => {
       localStorage.setItem('user', JSON.stringify(u));
-      setUser(u);
+      setUser(u as User);
     };
 
     try {
@@ -133,7 +135,8 @@ export default function LoginPage() {
       } else {
         setErrorMsg('El servidor no devolvió un token de acceso válido.');
       }
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       const message =
         err.response?.data?.message ||
         'Credenciales inválidas o error de conexión con el servidor.';

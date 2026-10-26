@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/Footer';
@@ -26,31 +27,34 @@ export default function EditarProyectoPage({ params }: { params: Promise<{ id: s
   const [linkProyecto, setLinkProyecto] = useState('');
   const [imagenUrl, setImagenUrl] = useState('');
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-
-    if (!storedUser) {
-      setMsg({ text: '🚫 No estás autenticado.', type: 'error' });
-      setLoading(false);
-      setTimeout(() => router.push('/login'), 2000);
-      return;
+  const cargarProyectoLocal = (): Proyecto | null => {
+    const mockStr = localStorage.getItem('mock_proyectos');
+    if (mockStr) {
+      try {
+        const mockData: Proyecto[] = JSON.parse(mockStr);
+        const encontrado = mockData.find((p) => Number(p.id) === proyectoId);
+        if (encontrado) return encontrado;
+      } catch (e) {
+        console.error('Error leyendo proyectos de almacenamiento local:', e);
+      }
     }
+    return null;
+  };
 
-    let user: SessionUser;
-    try {
-      user = JSON.parse(storedUser);
-    } catch {
-      setMsg({ text: 'Error al verificar permisos.', type: 'error' });
-      setLoading(false);
-      setTimeout(() => router.push(`/proyectos/${proyectoId}`), 2000);
-      return;
-    }
+  const poblarFormulario = (data: Proyecto) => {
+    setNombre(data.nombre || '');
+    setDescripcion(data.descripcion || '');
+    setEstado(data.estado || 'activo');
+    setLinkProyecto(data.link_proyecto || '');
+    setImagenUrl(data.imagen_url || '');
 
-    if (proyectoId) {
-      cargarProyecto(user);
+    if (data.fecha_inicio) {
+      setFechaInicio(data.fecha_inicio.substring(0, 10));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [proyectoId, router]);
+    if (data.fecha_fin) {
+      setFechaFin(data.fecha_fin.substring(0, 10));
+    }
+  };
 
   const cargarProyecto = async (user: SessionUser) => {
     setLoading(true);
@@ -83,34 +87,31 @@ export default function EditarProyectoPage({ params }: { params: Promise<{ id: s
     setLoading(false);
   };
 
-  const cargarProyectoLocal = (): Proyecto | null => {
-    const mockStr = localStorage.getItem('mock_proyectos');
-    if (mockStr) {
-      try {
-        const mockData: Proyecto[] = JSON.parse(mockStr);
-        const encontrado = mockData.find((p) => Number(p.id) === proyectoId);
-        if (encontrado) return encontrado;
-      } catch (e) {
-        console.error('Error leyendo proyectos de almacenamiento local:', e);
-      }
-    }
-    return null;
-  };
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
 
-  const poblarFormulario = (data: Proyecto) => {
-    setNombre(data.nombre || '');
-    setDescripcion(data.descripcion || '');
-    setEstado(data.estado || 'activo');
-    setLinkProyecto(data.link_proyecto || '');
-    setImagenUrl(data.imagen_url || '');
+    if (!storedUser) {
+      setMsg({ text: '🚫 No estás autenticado.', type: 'error' });
+      setLoading(false);
+      setTimeout(() => router.push('/login'), 2000);
+      return;
+    }
 
-    if (data.fecha_inicio) {
-      setFechaInicio(data.fecha_inicio.substring(0, 10));
+    let user: SessionUser;
+    try {
+      user = JSON.parse(storedUser);
+    } catch {
+      setMsg({ text: 'Error al verificar permisos.', type: 'error' });
+      setLoading(false);
+      setTimeout(() => router.push(`/proyectos/${proyectoId}`), 2000);
+      return;
     }
-    if (data.fecha_fin) {
-      setFechaFin(data.fecha_fin.substring(0, 10));
+
+    if (proyectoId) {
+      cargarProyecto(user);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [proyectoId, router]);
 
   const guardarCambios = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,13 +129,14 @@ export default function EditarProyectoPage({ params }: { params: Promise<{ id: s
     };
 
     try {
-      await proyectosService.update(proyectoId, datosPayload as any);
+      await proyectosService.update(proyectoId, datosPayload);
 
       setMsg({ text: '💾 Proyecto actualizado correctamente', type: 'success' });
       setTimeout(() => {
         router.push(`/proyectos/${proyectoId}`);
       }, 1200);
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       // Sin fallback local: si el backend rechaza (permisos o conexión) se informa el motivo
       const mensaje =
         err?.response?.data?.message ||

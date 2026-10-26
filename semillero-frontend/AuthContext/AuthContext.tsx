@@ -1,10 +1,11 @@
 'use client';
 
 import { createContext } from 'react';
+import type { User } from '../types/api';
 
 export interface AuthContextType {
-  user: any;
-  setUser: (user: any) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
   isLoading: boolean;
   logout: () => void;
 }

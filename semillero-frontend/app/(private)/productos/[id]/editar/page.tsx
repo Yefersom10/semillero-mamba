@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { TipoProducto, User, ProductoAutor } from '@/types/api';
@@ -35,10 +36,6 @@ export default function EditarProductoPage({ params }: { params: Promise<{ id: s
   // Mapa usuario_id -> id de la relación producto_autor, necesario para poder eliminarla si se desmarca
   const [relacionesIniciales, setRelacionesIniciales] = useState<Map<number, number>>(new Map());
 
-  useEffect(() => {
-    cargarDatos();
-  }, [productoId]);
-
   const cargarDatos = async () => {
     setLoading(true);
     setError(null);
@@ -70,13 +67,18 @@ export default function EditarProductoPage({ params }: { params: Promise<{ id: s
 
       setRelacionesIniciales(mapaRelaciones);
       setAutoresSeleccionados(new Set(mapaRelaciones.keys()));
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       console.error('Error al cargar datos para edición:', err);
       setError('No se pudo obtener la información del producto. Intenta nuevamente.');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    cargarDatos();
+  }, [productoId]);
 
   const handleCheckboxChange = (usuarioId: number) => {
     const nuevos = new Set(autoresSeleccionados);
@@ -134,7 +136,8 @@ export default function EditarProductoPage({ params }: { params: Promise<{ id: s
       }
 
       router.push('/productos');
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       console.error('Error al actualizar:', err);
       setError(err.message || 'Error al guardar los cambios.');
     } finally {

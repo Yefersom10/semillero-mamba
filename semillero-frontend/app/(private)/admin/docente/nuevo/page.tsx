@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { docentesService } from '@/services/docentesService';
@@ -18,7 +19,8 @@ export default function CrearDocentePage() {
             await docentesService.create({ nombre, email, password });
             alert('Docente registrado correctamente.');
             router.push('/docente');
-        } catch (err: any) {
+        } catch (errRaw) {
+          const err = errRaw as ApiError;
             alert(err.message || 'Error al guardar docente.');
         } finally {
             setSubmitting(false);

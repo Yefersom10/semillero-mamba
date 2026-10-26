@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -16,6 +17,20 @@ export default function DocentesPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
 
+  const cargarDocentes = async () => {
+    setLoading(true);
+    try {
+      const data = await docentesService.getAll();
+      setDocentes(data);
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
+      console.error('Error al cargar docentes:', err);
+      toast.error('Error al cargar la lista de docentes');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (authLoading) return;
 
@@ -29,26 +44,14 @@ export default function DocentesPage() {
     cargarDocentes();
   }, [user, authLoading, router]);
 
-  const cargarDocentes = async () => {
-    setLoading(true);
-    try {
-      const data = await docentesService.getAll();
-      setDocentes(data);
-    } catch (err: any) {
-      console.error('Error al cargar docentes:', err);
-      toast.error('Error al cargar la lista de docentes');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleEliminar = async (id: number) => {
     if (!confirm('¿Eliminar registro del docente?')) return;
     try {
       await docentesService.delete(id);
       setDocentes((prev) => prev.filter((d) => d.id !== id));
       toast.success('Docente eliminado correctamente');
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       toast.error(err.message || 'Error al eliminar el docente.');
     }
   };

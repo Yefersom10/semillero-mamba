@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { adminService } from '@/services/adminService';
@@ -15,10 +16,6 @@ export default function RolesPage() {
 
   const isEditing = id !== null;
 
-  useEffect(() => {
-    cargarRoles();
-  }, []);
-
   const cargarRoles = async () => {
     try {
       setLoading(true);
@@ -32,6 +29,10 @@ export default function RolesPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    cargarRoles();
+  }, []);
 
   const prepararEdicion = (r: Rol) => {
     setId(r.id);
@@ -58,7 +59,8 @@ export default function RolesPage() {
 
       cancelarEdicion();
       await cargarRoles();
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       console.error('Error al procesar formulario de rol:', err);
       const mensaje = err.response?.data?.message || 'Ocurrió un error al procesar la operación.';
       alert(`❌ ${Array.isArray(mensaje) ? mensaje.join(', ') : mensaje}`);
@@ -71,7 +73,8 @@ export default function RolesPage() {
       await adminService.eliminarRol(rolId);
       alert('Rol eliminado con éxito.');
       await cargarRoles();
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       console.error('Error al eliminar rol:', err);
       const mensaje = err.response?.data?.message || 'No se pudo eliminar el rol.';
       alert(`❌ ${mensaje}`);

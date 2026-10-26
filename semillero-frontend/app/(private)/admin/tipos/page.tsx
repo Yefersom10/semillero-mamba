@@ -23,10 +23,24 @@ const [grupoId, setGrupoId] = useState<number | ''>('');
 
   const isEditing = id !== null;
 
-  useEffect(() => {
-    cargarTipos();
-    cargarGrupos();
-  }, []);
+  const obtenerTiposLocales = () => {
+    const local = localStorage.getItem('mock_tipos_producto');
+    if (local) {
+      try {
+        setTipos(JSON.parse(local) as TipoProducto[]);
+        return;
+      } catch {
+        // Fallback en caso de error al parsear JSON
+      }
+    }
+    const iniciales: TipoProducto[] = [
+      { id: 1, grupo_id: 1, nombre: 'Artículo Científico', descripcion: 'Publicaciones indexadas en revistas especializadas' },
+      { id: 2, grupo_id: 1, nombre: 'Ponencia Internacional', descripcion: 'Presentaciones en congresos o simposios académicos' },
+      { id: 3, grupo_id: 2, nombre: 'Desarrollo de Software', descripcion: 'Prototipos, librerías o plataformas funcionales' },
+    ];
+    localStorage.setItem('mock_tipos_producto', JSON.stringify(iniciales));
+    setTipos(iniciales);
+  };
 
   const cargarTipos = async () => {
     try {
@@ -37,7 +51,7 @@ const [grupoId, setGrupoId] = useState<number | ''>('');
       } else {
         obtenerTiposLocales();
       }
-    } catch (err) {
+    } catch {
       console.warn('Error conectando con la API de tipos. Cargando datos desde almacenamiento local...');
       obtenerTiposLocales();
     } finally {
@@ -53,24 +67,10 @@ const [grupoId, setGrupoId] = useState<number | ''>('');
   }
 };
 
-  const obtenerTiposLocales = () => {
-    const local = localStorage.getItem('mock_tipos_producto');
-    if (local) {
-      try {
-        setTipos(JSON.parse(local) as TipoProducto[]);
-        return;
-      } catch (e) {
-        // Fallback en caso de error al parsear JSON
-      }
-    }
-    const iniciales: TipoProducto[] = [
-      { id: 1, grupo_id: 1, nombre: 'Artículo Científico', descripcion: 'Publicaciones indexadas en revistas especializadas' },
-      { id: 2, grupo_id: 1, nombre: 'Ponencia Internacional', descripcion: 'Presentaciones en congresos o simposios académicos' },
-      { id: 3, grupo_id: 2, nombre: 'Desarrollo de Software', descripcion: 'Prototipos, librerías o plataformas funcionales' },
-    ];
-    localStorage.setItem('mock_tipos_producto', JSON.stringify(iniciales));
-    setTipos(iniciales);
-  };
+  useEffect(() => {
+    cargarTipos();
+    cargarGrupos();
+  }, []);
 
   const prepararEdicion = (t: TipoProducto) => {
   setId(t.id);
@@ -117,7 +117,7 @@ const payload = {
 
       cancelarEdicion();
       cargarTipos();
-    } catch (err) {
+    } catch {
       alert('Ocurrió un error al procesar la operación.');
     }
   };
@@ -159,7 +159,7 @@ const payload = {
       await adminService.eliminarTipo(tipoId);
       alert('Tipo de producto eliminado.');
       cargarTipos();
-    } catch (err) {
+    } catch {
       const existentesStr = localStorage.getItem('mock_tipos_producto');
       if (existentesStr) {
         const existentes: TipoProducto[] = JSON.parse(existentesStr);

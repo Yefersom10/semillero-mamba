@@ -36,7 +36,8 @@ export default function NavbarPrivate() {
         } else if (parsedUser.rol) {
           // 1. Obtener la cadena o valor del rol sin importar su estructura
           const rawRol = typeof parsedUser.rol === 'object' && parsedUser.rol !== null
-            ? (parsedUser.rol as any).nombre || (parsedUser.rol as any).name
+            ? (parsedUser.rol as { nombre?: string; name?: string }).nombre ||
+              (parsedUser.rol as { nombre?: string; name?: string }).name
             : parsedUser.rol;
 
           if (rawRol !== undefined && rawRol !== null) {

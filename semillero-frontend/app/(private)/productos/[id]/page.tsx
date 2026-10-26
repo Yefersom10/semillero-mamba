@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -35,10 +36,6 @@ export default function DetalleProductoPage({ params }: { params: Promise<{ id: 
   const [agregandoAutor, setAgregandoAutor] = useState(false);
   const [eliminandoId, setEliminandoId] = useState<number | null>(null);
 
-  useEffect(() => {
-    cargarTodo();
-  }, [productoId]);
-
   const cargarTodo = async () => {
     setLoading(true);
     try {
@@ -69,12 +66,17 @@ export default function DetalleProductoPage({ params }: { params: Promise<{ id: 
         (a) => String(a.producto_id) === String(productoId)
       );
       setAutores(autoresFiltrados);
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       console.error('Error al cargar detalle del producto:', err);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    cargarTodo();
+  }, [productoId]);
 
   const handleAgregarAutor = async () => {
     setAutorMsg(null);
@@ -105,7 +107,8 @@ export default function DetalleProductoPage({ params }: { params: Promise<{ id: 
       // Recargar lista de autores
       const todosAutores = await productoAutoresService.getAll();
       setAutores(todosAutores.filter((a) => String(a.producto_id) === String(productoId)));
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       setAutorMsg({ text: err.message || 'Error al agregar autor', type: 'error' });
     } finally {
       setAgregandoAutor(false);
@@ -118,7 +121,8 @@ export default function DetalleProductoPage({ params }: { params: Promise<{ id: 
     try {
       await productoAutoresService.delete(id);
       setAutores(autores.filter((a) => a.id !== id));
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       alert('Error al eliminar autor: ' + err.message);
     } finally {
       setEliminandoId(null);
@@ -130,7 +134,8 @@ export default function DetalleProductoPage({ params }: { params: Promise<{ id: 
     try {
       await productosService.delete(Number(productoId));
       router.push('/productos');
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       alert(err.message);
     }
   };

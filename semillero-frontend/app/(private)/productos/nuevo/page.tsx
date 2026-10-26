@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { productosService } from '@/services/api.service';
@@ -31,7 +32,8 @@ export default function NuevoProductoPage() {
         activo: true,
       });
       router.push('/productos');
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       alert(err.message);
     } finally {
       setSubmitting(false);

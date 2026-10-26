@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -61,7 +62,8 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push('/login');
       }, 1500);
-    } catch (error: any) {
+    } catch (errorRaw) {
+      const error = errorRaw as ApiError;
       console.error('Error al registrar usuario:', error);
       
       const errorResponse = error.response?.data;

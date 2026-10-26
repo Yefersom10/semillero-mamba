@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@/types/api';
@@ -17,10 +18,6 @@ export default function PerfilPage() {
 
   // Mensajes de estado
   const [msg, setMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-
-  useEffect(() => {
-    cargarPerfil();
-  }, []);
 
   const cargarPerfil = async () => {
     setLoading(true);
@@ -52,12 +49,17 @@ export default function PerfilPage() {
           localStorage.setItem('user', JSON.stringify({ ...parsedUser, ...data }));
         }
       }
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       console.error('Error al obtener perfil del servidor:', err);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    cargarPerfil();
+  }, []);
 
   const handleUpdatePerfil = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,7 +108,8 @@ export default function PerfilPage() {
       }
 
       setMsg({ text: 'Perfil actualizado con éxito', type: 'success' });
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       // Fallback local en caso de fallo
       if (storedUserStr) {
         const parsedUser = JSON.parse(storedUserStr);
@@ -122,14 +125,14 @@ export default function PerfilPage() {
     }
   };
 
-  const getRolNombre = (rol: any) => {
+  const getRolNombre = (rol: User['rol'] | null | undefined): string => {
     if (typeof rol === 'object' && rol !== null) {
-      return rol.nombre || rol.name || 'Usuario';
+      return rol.nombre || (rol as { name?: string }).name || 'Usuario';
     }
     return String(rol || 'Usuario');
   };
 
-  const getRolBadgeColor = (rol: any) => {
+  const getRolBadgeColor = (rol: User['rol'] | null | undefined) => {
     const rolStr = getRolNombre(rol).toLowerCase();
     switch (rolStr) {
       case 'admin':

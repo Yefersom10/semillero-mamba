@@ -26,6 +26,25 @@ export default function DashboardPage() {
     productos: 'Cargando...',
   });
 
+  const cargarEstadisticas = async (sesion: UserSession) => {
+    try {
+      const datos = await estadisticasService.getResumen(sesion);
+      setResumen(datos);
+      setStats({
+        proyectos: `${datos.totalProyectos} proyectos registrados`,
+        productos: `${datos.totalProductos} productos registrados`,
+      });
+    } catch (error) {
+      console.error('Error cargando estadísticas:', error);
+      setStats({
+        proyectos: 'No disponible',
+        productos: 'No disponible',
+      });
+    } finally {
+      setCargandoResumen(false);
+    }
+  };
+
   useEffect(() => {
     // 1. Verificar autenticación desde localStorage
     const storedUserStr = localStorage.getItem('user');
@@ -56,25 +75,6 @@ export default function DashboardPage() {
       setLoading(false);
     }
   }, [router]);
-
-  const cargarEstadisticas = async (sesion: UserSession) => {
-    try {
-      const datos = await estadisticasService.getResumen(sesion);
-      setResumen(datos);
-      setStats({
-        proyectos: `${datos.totalProyectos} proyectos registrados`,
-        productos: `${datos.totalProductos} productos registrados`,
-      });
-    } catch (error) {
-      console.error('Error cargando estadísticas:', error);
-      setStats({
-        proyectos: 'No disponible',
-        productos: 'No disponible',
-      });
-    } finally {
-      setCargandoResumen(false);
-    }
-  };
 
   const obtenerNombreRol = (rolId?: number) => {
     const roles: Record<number, string> = {

@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState, useEffect, useMemo, FormEvent } from 'react';
 import Link from 'next/link';
 import { adminService } from '@/services/adminService';
@@ -39,10 +40,6 @@ export default function UsuariosPage() {
     }, {});
   }, [roles]);
 
-  useEffect(() => {
-    cargarDatos();
-  }, []);
-
   const cargarDatos = async () => {
     try {
       setLoading(true);
@@ -60,6 +57,10 @@ export default function UsuariosPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    cargarDatos();
+  }, []);
 
   const handleInputChange = (field: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -100,7 +101,8 @@ export default function UsuariosPage() {
 
       setForm(INITIAL_FORM);
       await cargarDatos();
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       console.error(err);
       const msg = err.response?.data?.message || 'Error al procesar la operación.';
       setErrorMsg(Array.isArray(msg) ? msg.join(', ') : msg);

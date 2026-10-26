@@ -1,5 +1,6 @@
 'use client';
 
+import type { ApiError } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/Footer';
@@ -38,7 +39,7 @@ export default function NuevoProyectoPage() {
         setMsg({ text: '🚫 No tienes permisos para crear proyectos.', type: 'error' });
         setTimeout(() => router.push('/proyectos'), 2000);
       }
-    } catch (e) {
+    } catch {
       setMsg({ text: 'Error al verificar credenciales.', type: 'error' });
       setTimeout(() => router.push('/proyectos'), 2000);
     }
@@ -60,13 +61,14 @@ export default function NuevoProyectoPage() {
     };
 
     try {
-      await proyectosService.create(datosPayload as any);
+      await proyectosService.create(datosPayload);
       setMsg({ text: '🚀 Proyecto creado exitosamente', type: 'success' });
 
       setTimeout(() => {
         router.push('/proyectos');
       }, 1200);
-    } catch (err: any) {
+    } catch (errRaw) {
+      const err = errRaw as ApiError;
       // Sin fallback local: se informa el motivo real del rechazo
       const mensaje =
         err?.response?.data?.message ||

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { SVGProps, ComponentType } from 'react';
 
-interface IconProps extends SVGProps<SVGSVGElement> {}
+type IconProps = SVGProps<SVGSVGElement>;
 
 interface ModuloAdmin {
   titulo: string;

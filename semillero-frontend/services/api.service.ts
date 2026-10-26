@@ -1,10 +1,5 @@
 import { api } from './api';
 import { 
-  LoginDto, 
-  LoginResponse, 
-  Proyecto, 
-  CreateProyectoDto, 
-  UpdateProyectoDto, 
   Producto, 
   CreateProductoDto, 
   UpdateProductoDto,
