@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@/types/api';
+import { API_URL } from '@/lib/config';
 
 export default function PerfilPage() {
   const router = useRouter();
@@ -16,8 +17,6 @@ export default function PerfilPage() {
 
   // Mensajes de estado
   const [msg, setMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   useEffect(() => {
     cargarPerfil();

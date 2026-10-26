@@ -1,7 +1,5 @@
 import axios from 'axios';
-
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+import { API_URL } from '../lib/config';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -15,12 +13,8 @@ api.interceptors.request.use(
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
 
-      console.log('➡️ Axios URL:', `${config.baseURL ?? ''}${config.url ?? ''}`);
-      console.log('🔑 Token:', token ? 'EXISTE' : 'NO EXISTE');
-
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        console.log('✅ Authorization agregado');
       }
     }
 

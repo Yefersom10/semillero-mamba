@@ -4,9 +4,7 @@
 // =============================================================
 
 import axios from 'axios';
-
-// URL base del microservicio (definida en .env.local)
-const CHAT_URL = process.env.NEXT_PUBLIC_CHAT_URL || 'http://localhost:8000';
+import { CHAT_URL } from '../lib/config';
 
 // Instancia de axios dedicada al chatbot
 // (timeout de 40s porque Claude puede tardar en responder)
