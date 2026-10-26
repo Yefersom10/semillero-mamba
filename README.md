@@ -124,7 +124,7 @@ semillero-mamba/
 ## Seguridad
 
 - Los archivos `.env` y `.env.local` con credenciales **no están incluidos** en este repositorio; solo se comparten los `.env.example` como plantilla.
-- Cada subcarpeta conserva su propio `.gitignore`.
+- Cada subcarpeta conserva su propio `.gitignore`
 
 ## Licencia
 
