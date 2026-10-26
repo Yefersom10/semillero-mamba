@@ -5,12 +5,12 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-mamba}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mamba1234}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en .env}
       POSTGRES_DB: ${POSTGRES_DB:-semillero_mamba}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mamba} -d ${POSTGRES_DB:-semillero_mamba}"]
       interval: 5s
@@ -29,14 +29,13 @@ services:
     environment:
       APP_PORT: 8000
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3001}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-mamba}:${POSTGRES_PASSWORD:-mamba1234}@db:5432/${POSTGRES_DB:-semillero_mamba}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-mamba}:${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en .env}@db:5432/${POSTGRES_DB:-semillero_mamba}
       DB_HOST: db
       DB_PORT: 5432
       DB_USERNAME: ${POSTGRES_USER:-mamba}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-mamba1234}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en .env}
       DB_DATABASE: ${POSTGRES_DB:-semillero_mamba}
-      JWT_SECRET: ${JWT_SECRET:-123456789}
-      SECRET_KEY: ${SECRET_KEY:-123456789}
+      SECRET_KEY: ${SECRET_KEY:?Define SECRET_KEY en .env (minimo 16 caracteres)}
     ports:
       - "8000:8000"
       - "3001:3001"

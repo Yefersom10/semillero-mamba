@@ -10,6 +10,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { PermissionsGuard } from '../common/guards/permissions.guard';
 import { Usuario } from '../usuarios/entities/usuario.entity';
 import { UsuariosModule } from '../usuarios/usuarios.module';
+import { getJwtSecret } from '../common/config/jwt-secret';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { UsuariosModule } from '../usuarios/usuarios.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('SECRET_KEY') || '123456789',
+        secret: getJwtSecret(configService),
         signOptions: { expiresIn: '8h' },
       }),
     }),

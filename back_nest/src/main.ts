@@ -6,12 +6,18 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Carga de variables de entorno
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+  // FRONTEND_URL admite varios orígenes separados por coma
+  const allowedOrigins = (
+    process.env.FRONTEND_URL || 'http://localhost:3001,http://127.0.0.1:3001'
+  )
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/$/, ''))
+    .filter(Boolean);
   const appPort = process.env.APP_PORT || 3000;
 
   // Habilitar CORS
   app.enableCors({
-    origin: [frontendUrl, 'http://127.0.0.1:3001'],
+    origin: allowedOrigins,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
