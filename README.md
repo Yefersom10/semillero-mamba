@@ -46,23 +46,32 @@ Repositorio principal del **proyecto de grado** del Semillero de Investigación 
 Desde la raíz del repositorio:
 
 ```bash
+cp .env.example .env        # y completar SECRET_KEY y POSTGRES_PASSWORD
 docker compose up --build
 ```
 
-Levanta dos contenedores: `mamba_app` (backend NestJS y frontend Next.js en la misma imagen) y `mamba_db` (PostgreSQL 15).
+`SECRET_KEY` (mínimo 16 caracteres) y `POSTGRES_PASSWORD` son **obligatorias**: el backend no arranca con valores ausentes o por defecto. Para generar una clave:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Levanta dos contenedores: `mamba_app` (backend NestJS y frontend Next.js en la misma imagen, como usuario no root y con healthcheck) y `mamba_db` (PostgreSQL 15).
 
 | Servicio | URL |
 |---|---|
 | Frontend | http://localhost:3001 |
 | Backend (API) | http://localhost:8000 |
 | Swagger | http://localhost:8000/api/docs |
-| PostgreSQL | localhost:5432 |
+| PostgreSQL | 127.0.0.1:5432 (solo local; cambia el puerto con `DB_HOST_PORT`) |
 
 Notas:
 
-- Las variables `POSTGRES_*`, `JWT_SECRET`, `FRONTEND_URL`, etc. se pueden definir en un `.env` en la raíz; todas tienen valores por defecto.
+- Todas las variables disponibles están en [`.env.example`](./.env.example).
+- `FRONTEND_URL` admite varios orígenes CORS separados por coma.
+- `SEED_ENABLED=false` desactiva la creación de tablas y de los usuarios de demostración (usar en producción).
 - `NEXT_PUBLIC_API_URL` y `NEXT_PUBLIC_CHAT_URL` se incrustan al **compilar** el frontend: si las cambias, reconstruye con `docker compose up --build`.
-- El microservicio `mamba-ai-service` no forma parte del contenedor; se ejecuta aparte (ver más abajo) para activar el chatbot.
+- **Chatbot (opcional):** `docker compose --profile chatbot up --build` agrega el contenedor `mamba_chatbot` en `http://localhost:8001` (requiere `ANTHROPIC_API_KEY` en `.env`).
 - Para detener todo: `docker compose down` (agrega `-v` para borrar también los datos de la base de datos).
 
 ### Opción B: ejecución local (sin Docker)
@@ -72,8 +81,9 @@ Notas:
 ```bash
 cd back_nest
 npm install
-cp .env.example .env   # configurar variables de entorno
-npm run start:dev      # http://localhost:8000
+cp .env.example .env   # configurar variables (SECRET_KEY obligatoria)
+npm run start:dev
+npm test               # pruebas unitarias      # http://localhost:8000
 ```
 
 #### 2. Servicio de IA (`mamba-ai-service`)
@@ -102,7 +112,8 @@ npm run dev                  # http://localhost:3001
 semillero-mamba/
 ├── README.md               ← este archivo
 ├── Dockerfile              ← imagen única: backend + frontend
-├── docker-compose.yaml     ← app (backend + frontend) + PostgreSQL
+├── docker-compose.yaml     ← app (backend + frontend) + PostgreSQL (+ chatbot con --profile chatbot)
+├── .github/workflows/      ← CI: build, tests y Docker
 ├── docker-entrypoint.sh    ← arranca ambos procesos en el contenedor
 ├── semillero-frontend/     ← interfaz web (Next.js)
 ├── back_nest/              ← API REST (NestJS)
