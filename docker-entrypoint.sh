@@ -9,7 +9,7 @@ else
 fi
 
 cd /app/front
-node node_modules/next/dist/bin/next start -p 3001 -H 0.0.0.0 &
+PORT=3001 HOSTNAME=0.0.0.0 node server.js &
 
 wait -n
 exit $?
