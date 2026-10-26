@@ -29,6 +29,8 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
+      // `const { password_hash, ...rest } = x` es el idioma para omitir campos
+      '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }],
       "prettier/prettier": ["error", { endOfLine: "auto" }],
     },
   },

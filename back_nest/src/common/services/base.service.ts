@@ -5,7 +5,7 @@ import { Repository, FindOptionsWhere, DeepPartial } from 'typeorm';
 export abstract class BaseService<T extends { id: any }> {
   constructor(protected readonly repository: Repository<T>) {}
 
-  async get(id: any): Promise<T> {
+  async get(id: T['id']): Promise<T> {
     const item = await this.repository.findOne({
       where: { id },
     });
@@ -27,13 +27,13 @@ export abstract class BaseService<T extends { id: any }> {
     return await this.repository.save(entity);
   }
 
-  async update(id: any, updateDto: DeepPartial<T>): Promise<T> {
+  async update(id: T['id'], updateDto: DeepPartial<T>): Promise<T> {
     const item = await this.get(id);
     const updated = this.repository.merge(item, updateDto);
     return await this.repository.save(updated);
   }
 
-  async remove(id: any): Promise<T> {
+  async remove(id: T['id']): Promise<T> {
     const item = await this.get(id);
     return await this.repository.remove(item);
   }

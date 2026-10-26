@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { PERMISSIONS_KEY } from '../decorators/require-permission.decorator';
 import { Usuario } from '../../usuarios/entities/usuario.entity';
+import { RolPermiso } from '../../roles/entities/rol-permiso.entity';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -22,8 +23,8 @@ export class PermissionsGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
-    const user: Usuario = request.user;
+    const request = context.switchToHttp().getRequest<{ user?: Usuario }>();
+    const user = request.user;
 
     if (!user || !user.rol) {
       throw new ForbiddenException('El usuario no tiene un rol asignado');
@@ -41,11 +42,12 @@ export class PermissionsGuard implements CanActivate {
     }
 
     // Fix 2: Búsqueda flexible de la relación del rol
-    const rolesPermisos =
-      user.rol.roles_permisos ||
-      (user.rol as any).rol_permisos ||
-      (user.rol as any).rolesPermisos ||
-      [];
+    const rol = user.rol as Usuario['rol'] & {
+      rol_permisos?: RolPermiso[];
+      rolesPermisos?: RolPermiso[];
+    };
+    const rolesPermisos: RolPermiso[] =
+      rol.roles_permisos || rol.rol_permisos || rol.rolesPermisos || [];
 
     if (!rolesPermisos || rolesPermisos.length === 0) {
       throw new ForbiddenException(
@@ -56,7 +58,7 @@ export class PermissionsGuard implements CanActivate {
     // Fix 3: Mapea múltiples formatos (nombre, modulo:accion, accion:modulo)
     const userPermissions = new Set<string>();
 
-    rolesPermisos.forEach((rp: any) => {
+    rolesPermisos.forEach((rp) => {
       if (rp.permiso) {
         if (rp.permiso.nombre)
           userPermissions.add(rp.permiso.nombre.toLowerCase());

@@ -14,7 +14,7 @@ export function getJwtSecret(configService: ConfigService): string {
   ) {
     throw new Error(
       `SECRET_KEY es obligatoria y debe tener al menos ${MIN_SECRET_LENGTH} caracteres (no se admiten valores por defecto). ` +
-        'Genera una con: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"',
+        "Genera una con: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
     );
   }
 

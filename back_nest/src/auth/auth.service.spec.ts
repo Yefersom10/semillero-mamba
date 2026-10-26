@@ -5,7 +5,11 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Repository } from 'typeorm';
 import { AuthService } from './auth.service';
+import { Usuario } from '../usuarios/entities/usuario.entity';
+import { Rol } from '../roles/entities/role.entity';
+import { CreateUsuarioDto } from '../usuarios/dto/create-usuario.dto';
 
 describe('AuthService — login y registro', () => {
   let service: AuthService;
@@ -31,8 +35,8 @@ describe('AuthService — login y registro', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     service = new AuthService(
-      usuarioRepo as any,
-      rolRepo as any,
+      usuarioRepo as unknown as Repository<Usuario>,
+      rolRepo as unknown as Repository<Rol>,
       jwtService as unknown as JwtService,
     );
   });
@@ -86,7 +90,7 @@ describe('AuthService — login y registro', () => {
       nombre: 'Luis',
       email: 'luis@mamba.com',
       password: 'clave-segura',
-    } as any;
+    } as CreateUsuarioDto;
 
     it('rechaza un email ya registrado', async () => {
       usuarioRepo.findOneBy.mockResolvedValue({ id: 9 });
@@ -98,10 +102,15 @@ describe('AuthService — login y registro', () => {
     it('fuerza el rol por defecto y no devuelve el hash de la contraseña', async () => {
       usuarioRepo.findOneBy.mockResolvedValue(null);
       rolRepo.findOneBy.mockResolvedValue({ id: 4 });
-      usuarioRepo.create.mockImplementation((u) => u);
-      usuarioRepo.save.mockImplementation(async (u) => ({ id: 7, ...u }));
+      usuarioRepo.create.mockImplementation((u: object) => u);
+      usuarioRepo.save.mockImplementation((u: object) =>
+        Promise.resolve({ id: 7, ...u }),
+      );
 
-      const result: any = await service.registro({ ...dto, rol_id: 1 });
+      const result = (await service.registro({
+        ...dto,
+        rol_id: 1,
+      })) as Record<string, unknown>;
 
       expect(usuarioRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({ rol_id: 4 }),

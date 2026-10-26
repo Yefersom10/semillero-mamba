@@ -25,7 +25,7 @@ import { SeedService } from './database/seed.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const isDebug = configService.get('DEBUG');
+        const isDebug = configService.get<string | boolean>('DEBUG');
         // Permite validar booleano true o string 'true' / '1'
         const isSyncEnabled =
           isDebug === true || isDebug === 'true' || isDebug === '1';

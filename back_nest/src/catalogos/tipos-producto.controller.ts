@@ -6,18 +6,12 @@ import {
   Delete,
   Body,
   Param,
-  Query,
   ParseIntPipe,
   HttpCode,
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiBearerAuth,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CatalogosService } from './catalogos.service';
 import { CreateTipoProductoDto } from './dto/create-tipo-producto.dto';
 import { UpdateTipoProductoDto } from './dto/update-tipo-producto.dto';
@@ -32,12 +26,7 @@ export class TiposProductoController {
 
   @Get()
   @ApiOperation({ summary: 'Listar tipos de producto' })
-  @ApiQuery({ name: 'skip', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  findAll(
-    @Query('skip') skip: number = 0,
-    @Query('limit') limit: number = 100,
-  ) {
+  findAll() {
     return this.catalogosService.findAllTiposProducto();
   }
 

@@ -11,6 +11,8 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { RelacionesService } from './relaciones.service';
+import { CreateProyectoUsuarioDto } from './dto/create-proyecto-usuario.dto';
+import { CreateProductoAutorDto } from './dto/create-producto-autor.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../common/guards/permissions.guard';
 import { RequirePermission } from '../common/decorators/require-permission.decorator';
@@ -46,7 +48,7 @@ export class RelacionesController {
   @Post('proyecto-usuario')
   @RequirePermission('proyectos:actualizar')
   @ApiOperation({ summary: 'Asignar un usuario a un proyecto' })
-  addUsuarioAProyecto(@Body() body: any) {
+  addUsuarioAProyecto(@Body() body: CreateProyectoUsuarioDto) {
     return this.relacionesService.createProyectoUsuario(body);
   }
 
@@ -81,7 +83,7 @@ export class RelacionesController {
   @Post('producto-autor')
   @RequirePermission('productos:actualizar')
   @ApiOperation({ summary: 'Asignar autor a un producto' })
-  addAutorAProducto(@Body() body: any) {
+  addAutorAProducto(@Body() body: CreateProductoAutorDto) {
     return this.relacionesService.createProductoAutor(body);
   }
 
