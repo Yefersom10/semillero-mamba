@@ -20,6 +20,12 @@ export class SeedService implements OnApplicationBootstrap {
   constructor(private readonly dataSource: DataSource) {}
 
   async onApplicationBootstrap() {
+    // SEED_ENABLED=false desactiva la creación de tablas y los datos de
+    // demostración (usuarios con contraseña conocida): usar en producción.
+    if (process.env.SEED_ENABLED === 'false') {
+      this.logger.log('Seed desactivado (SEED_ENABLED=false)');
+      return;
+    }
     await this.run();
   }
 

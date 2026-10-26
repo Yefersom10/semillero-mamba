@@ -28,6 +28,7 @@ services:
     restart: unless-stopped
     environment:
       APP_PORT: 8000
+      SEED_ENABLED: ${SEED_ENABLED:-true}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3001}
       DATABASE_URL: postgresql://${POSTGRES_USER:-mamba}:${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en .env}@db:5432/${POSTGRES_DB:-semillero_mamba}
       DB_HOST: db
